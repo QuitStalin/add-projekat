@@ -10,11 +10,12 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
-  StatusBar, // Import StatusBar
-  Dimensions, // Import Dimensions
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import * as Font from "expo-font";
+import { useSafeAreaInsets } from "react-native-safe-area-context"; // Import safe area insets
+import HeaderWidget from "../components/HeaderWidget";
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -26,6 +27,7 @@ export default function LoginScreen({ navigation }) {
   const [fontLoaded, setFontLoaded] = useState(false);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const insets = useSafeAreaInsets(); // Get the safe area insets
 
   useEffect(() => {
     fetchFonts().then(() => setFontLoaded(true));
@@ -35,9 +37,9 @@ export default function LoginScreen({ navigation }) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
-  // Get the status bar height
-  const statusBarHeight = StatusBar.currentHeight || 0;
-  const screenHeight = Dimensions.get("window").height;
+  // Subtract the status bar and safe area insets from the screen height
+  const screenHeight =
+    Dimensions.get("window").height - insets.top - insets.bottom;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -48,23 +50,16 @@ export default function LoginScreen({ navigation }) {
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
-            paddingTop: statusBarHeight, // Add paddingTop to avoid overlap
+            paddingTop: insets.top, // Use safe area inset for padding
           }}
         >
-          <View
-            style={[
-              styles.container,
-              { height: screenHeight - statusBarHeight },
-            ]}
-          >
+          <View style={[styles.container, { height: screenHeight }]}>
             <View style={styles.test}>
-              <View style={styles.header}>
-                <Text style={styles.headerText}>SPREMNI ZA ZABAVU!</Text>
-                <Image
-                  source={require("../../assets/img1.png")}
-                  style={styles.image}
-                />
-              </View>
+              <HeaderWidget
+                text="SPREMNI ZA ZABAVU!"
+                imgSource={require("../../assets/img1.png")}
+              />
+
               <Text style={styles.title}>PRIJAVI SE I KRENI!</Text>
 
               <TextInput
@@ -86,7 +81,7 @@ export default function LoginScreen({ navigation }) {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => {
-                  /* Add your login logic here */
+                  navigation.navigate("Home");
                 }}
               >
                 <Text style={styles.buttonText}>ULOGUJ SE</Text>
@@ -131,34 +126,15 @@ const styles = StyleSheet.create({
   },
   test: {
     width: "100%",
-    height: "85%",
     justifyContent: "space-between",
     padding: 10,
-    marginTop: 10,
-  },
-  header: {
-    backgroundColor: "black",
-    borderRadius: 15,
-    width: "100%",
-    borderWidth: 2,
-    borderColor: "black",
-  },
-  headerText: {
-    fontSize: 25,
-    color: "#fff",
-    padding: 10,
-    fontFamily: "jersey",
-  },
-  image: {
-    width: "100%",
-    height: 150,
-    borderRadius: 15,
   },
   title: {
     fontSize: 35,
     color: "#000",
     textAlign: "center",
     fontFamily: "jersey",
+    marginVertical: 8,
   },
   input: {
     width: "100%",
@@ -170,6 +146,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "black",
     fontFamily: "jersey",
+    marginVertical: 8,
   },
   button: {
     width: "100%",
@@ -179,6 +156,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     fontFamily: "jersey",
+    marginVertical: 8,
   },
   buttonText: {
     fontSize: 23,
